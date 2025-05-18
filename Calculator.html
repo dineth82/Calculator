@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Animated Calculator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --accent: #fd79a8;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --success: #00b894;
+            --danger: #d63031;
+            --warning: #fdcb6e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            perspective: 1000px;
+        }
+        
+        .calculator-container {
+            position: relative;
+            transform-style: preserve-3d;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotateX(5deg) rotateY(-5deg);
+            }
+            50% {
+                transform: translateY(-20px) rotateX(5deg) rotateY(5deg);
+            }
+        }
+        
+        .calculator {
+            position: relative;
+            width: 340px;
+            padding: 25px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2),
+                        0 0 0 2px rgba(255, 255, 255, 0.1),
+                        inset 0 0 20px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transform: translateZ(50px);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2;
+        }
+        
+        .calculator:hover {
+            transform: translateZ(60px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 0 35px 60px rgba(0, 0, 0, 0.3),
+                        0 0 0 4px rgba(255, 255, 255, 0.15),
+                        inset 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent,
+                transparent,
+                transparent,
+                rgba(255, 255, 255, 0.1)
+            );
+            transform: rotate(30deg);
+            animation: shine 8s linear infinite;
+        }
+        
+        @keyframes shine {
+            0% {
+                transform: rotate(30deg) translate(-30%, -30%);
+            }
+            100% {
+                transform: rotate(30deg) translate(30%, 30%);
+            }
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--light);
+            opacity: 0.8;
+        }
+        
+        .brand i {
+            font-size: 1.5rem;
+            margin-right: 10px;
+            color: var(--accent);
+        }
+        
+        .brand h2 {
+            font-weight: 500;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+        
+        .display {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            margin-bottom: 25px;
+            padding: 20px;
+            text-align: right;
+            font-size: 2.8rem;
+            font-weight: 300;
+            color: var(--light);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.05),
+                transparent
+            );
+            transform: translateX(-100%);
+        }
+        
+        .calculator:hover .display::before {
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+        
+        .display-history {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 15px;
+        }
+        
+        .btn {
+            position: relative;
+            height: 65px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            font-size: 1.3rem;
+            font-weight: 400;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.2),
+                rgba(255, 255, 255, 0.05)
+            );
+            clip-path: circle(0% at 50% 50%);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            z-index: -1;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+        
+        .btn:hover::before {
+            clip-path: circle(100% at 50% 50%);
+        }
+        
+        .btn:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn.operator {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 500;
+        }
+        
+        .btn.operator:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn.clear {
+            background: rgba(var(--danger-rgb), 0.3);
+        }
+        
+        .btn.clear:hover {
+            background: rgba(var(--danger-rgb), 0.4);
+        }
+        
+        .btn.equals {
+            background: rgba(var(--success-rgb), 0.3);
+            grid-column: span 2;
+        }
+        
+        .btn.equals:hover {
+            background: rgba(var(--success-rgb), 0.4);
+        }
+        
+        .btn.function {
+            font-size: 1.1rem;
+            color: var(--accent);
+        }
+        
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        .calculator-shadow {
+            position: absolute;
+            width: 90%;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            bottom: -15px;
+            left: 5%;
+            filter: blur(15px);
+            animation: shadow 6s ease-in-out infinite;
+            z-index: 1;
+        }
+        
+        @keyframes shadow {
+            0%, 100% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.9;
+            }
+        }
+        
+        /* Particle background */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float-particle 15s linear infinite;
+        }
+        
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 400px) {
+            .calculator {
+                width: 310px;
+                padding: 20px;
+            }
+            
+            .btn {
+                height: 60px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="calculator-container">
+        <div class="calculator">
+            <div class="brand">
+                <i class="fas fa-calculator"></i>
+                <h2>NeonCalc</h2>
+            </div>
+            
+            <div class="display" id="display">
+                <div class="display-history" id="history"></div>
+                <div id="current">0</div>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn clear" onclick="clearAll()">AC</button>
+                <button class="btn function" onclick="backspace()"><i class="fas fa-backspace"></i></button>
+                <button class="btn function" onclick="percentage()">%</button>
+                <button class="btn operator" onclick="appendOperator('/')"><i class="fas fa-divide"></i></button>
+                
+                <button class="btn" onclick="appendNumber('7')">7</button>
+                <button class="btn" onclick="appendNumber('8')">8</button>
+                <button class="btn" onclick="appendNumber('9')">9</button>
+                <button class="btn operator" onclick="appendOperator('*')"><i class="fas fa-times"></i></button>
+                
+                <button class="btn" onclick="appendNumber('4')">4</button>
+                <button class="btn" onclick="appendNumber('5')">5</button>
+                <button class="btn" onclick="appendNumber('6')">6</button>
+                <button class="btn operator" onclick="appendOperator('-')"><i class="fas fa-minus"></i></button>
+                
+                <button class="btn" onclick="appendNumber('1')">1</button>
+                <button class="btn" onclick="appendNumber('2')">2</button>
+                <button class="btn" onclick="appendNumber('3')">3</button>
+                <button class="btn operator" onclick="appendOperator('+')"><i class="fas fa-plus"></i></button>
+                
+                <button class="btn" onclick="appendNumber('0')">0</button>
+                <button class="btn" onclick="appendDecimal()">.</button>
+                <button class="btn equals" onclick="calculate()">=</button>
+            </div>
+        </div>
+        <div class="calculator-shadow"></div>
+    </div>
+
+    <script>
+        // Initialize variables
+        let currentInput = '0';
+        let previousInput = '';
+        let operation = null;
+        let resetInput = false;
+        
+        // DOM elements
+        const currentDisplay = document.getElementById('current');
+        const historyDisplay = document.getElementById('history');
+        const display = document.getElementById('display');
+        
+        // Update display
+        function updateDisplay() {
+            currentDisplay.textContent = currentInput;
+            
+            // Add animation
+            currentDisplay.style.transform = 'scale(1.05)';
+            currentDisplay.style.opacity = '0.8';
+            setTimeout(() => {
+                currentDisplay.style.transform = 'scale(1)';
+                currentDisplay.style.opacity = '1';
+            }, 100);
+        }
+        
+        // Append number
+        function appendNumber(number) {
+            if (currentInput === '0' || resetInput) {
+                currentInput = number;
+                resetInput = false;
+            } else {
+                currentInput += number;
+            }
+            updateDisplay();
+            createRipple(event);
+        }
+        
+        // Append decimal
+        function appendDecimal() {
+            if (resetInput) {
+                currentInput = '0.';
+                resetInput = false;
+            } else if (!currentInput.includes('.')) {
+                currentInput += '.';
+            }
+            updateDisplay();
+            createRipple(event);
+        }
+        
+        // Append operator
+        function appendOperator(op) {
+            if (operation !== null) calculate();
+            
+            switch(op) {
+                case '+':
+                    operation = '+';
+                    break;
+                case '-':
+                    operation = '-';
+                    break;
+                case '*':
+                    operation = '*';
+                    break;
+                case '/':
+                    operation = '/';
+                    break;
+            }
+            
+            previousInput = currentInput;
+            historyDisplay.textContent = `${previousInput} ${operation}`;
+            resetInput = true;
+            createRipple(event);
+            
+            // Add operator animation
+            display.style.boxShadow = 'inset 0 0 20px rgba(161, 240, 255, 0.4)';
+            setTimeout(() => {
+                display.style.boxShadow = 'inset 0 0 15px rgba(0, 0, 0, 0.3)';
+            }, 300);
+        }
+        
+        // Calculate result
+        function calculate() {
+            let computation;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            
+            if (isNaN(prev) || isNaN(current)) return;
+            
+            switch (operation) {
+                case '+':
+                    computation = prev + current;
+                    break;
+                case '-':
+                    computation = prev - current;
+                    break;
+                case '*':
+                    computation = prev * current;
+                    break;
+                case '/':
+                    computation = prev / current;
+                    break;
+                default:
+                    return;
+            }
+            
+            // Show full calculation in history
+            historyDisplay.textContent = `${previousInput} ${operation} ${currentInput} =`;
+            
+            currentInput = computation.toString();
+            operation = null;
+            resetInput = true;
+            updateDisplay();
+            createRipple(event);
+            
+            // Celebration animation
+            display.style.background = 'rgba(0, 184, 148, 0.3)';
+            currentDisplay.style.color = 'var(--success)';
+            currentDisplay.style.textShadow = '0 0 10px rgba(0, 184, 148, 0.7)';
+            
+            setTimeout(() => {
+                display.style.background = 'rgba(0, 0, 0, 0.2)';
+                currentDisplay.style.color = 'var(--light)';
+                currentDisplay.style.textShadow = 'none';
+            }, 1000);
+        }
+        
+        // Clear all
+        function clearAll() {
+            currentInput = '0';
+            previousInput = '';
+            operation = null;
+            historyDisplay.textContent = '';
+            updateDisplay();
+            createRipple(event);
+            
+            // Clear animation
+            display.style.background = 'rgba(214, 48, 49, 0.3)';
+            setTimeout(() => {
+                display.style.background = 'rgba(0, 0, 0, 0.2)';
+            }, 300);
+        }
+        
+        // Backspace
+        function backspace() {
+            if (currentInput.length === 1 || (currentInput.length === 2 && currentInput.startsWith('-'))) {
+                currentInput = '0';
+            } else {
+                currentInput = currentInput.slice(0, -1);
+            }
+            updateDisplay();
+            createRipple(event);
+        }
+        
+        // Percentage
+        function percentage() {
+            currentInput = (parseFloat(currentInput) / 100).toString();
+            updateDisplay();
+            createRipple(event);
+        }
+        
+        // Ripple effect
+        function createRipple(event) {
+            const btn = event.currentTarget;
+            const circle = document.createElement('span');
+            circle.classList.add('ripple');
+            
+            const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+            const radius = diameter / 2;
+            
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - (btn.getBoundingClientRect().left + radius)}px`;
+            circle.style.top = `${event.clientY - (btn.getBoundingClientRect().top + radius)}px`;
+            
+            btn.appendChild(circle);
+            
+            setTimeout(() => {
+                circle.remove();
+            }, 600);
+        }
+        
+        // Create particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random properties
+                const size = Math.random() * 5 + 2;
+                const posX = Math.random() * 100;
+                const duration = Math.random() * 10 + 10;
+                const delay = Math.random() * -20;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Initialize
+        window.onload = function() {
+            updateDisplay();
+            createParticles();
+            
+            // Add keyboard support
+            document.addEventListener('keydown', function(event) {
+                if (/[0-9]/.test(event.key)) {
+                    appendNumber(event.key);
+                } else if (event.key === '.') {
+                    appendDecimal();
+                } else if (event.key === '+' || event.key === '-' || event.key === '*' || event.key === '/') {
+                    appendOperator(event.key);
+                } else if (event.key === 'Enter' || event.key === '=') {
+                    calculate();
+                } else if (event.key === 'Escape') {
+                    clearAll();
+                } else if (event.key === 'Backspace') {
+                    backspace();
+                } else if (event.key === '%') {
+                    percentage();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
